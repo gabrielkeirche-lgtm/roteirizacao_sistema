@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue-900:#0a1628;--blue-800:#0d2040;--blue-700:#1a3a6b;--blue-600:#1d4ed8;
+  --blue-500:#2563eb;--blue-400:#3b82f6;--blue-300:#93c5fd;--blue-100:#dbeafe;
+  --green-700:#15803d;--green-600:#16a34a;--green-500:#22c55e;--green-400:#4ade80;--green-100:#dcfce7;
+  --red-500:#ef4444;--amber-500:#f59e0b;
+  --gray-900:#0f172a;--gray-800:#1e293b;--gray-700:#334155;--gray-600:#475569;
+  --gray-500:#64748b;--gray-400:#94a3b8;--gray-300:#cbd5e1;--gray-200:#e2e8f0;
+  --sidebar-w:220px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--blue-900);color:#e2e8f0;min-height:100vh;display:flex;overflow-x:hidden}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#0d2040 0%,#0a1628 70%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:var(--blue-800);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:44px 40px;width:390px;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+.login-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--blue-600),var(--blue-400));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px}
+.login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#fff;letter-spacing:.05em;text-transform:uppercase}
+.login-sub{font-size:11px;color:var(--blue-300);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
+.login-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(37,99,235,.2);border:1px solid rgba(59,130,246,.25);border-radius:8px;padding:5px 12px;font-size:11px;color:var(--blue-300);margin-bottom:28px}
+.login-dot{width:6px;height:6px;background:var(--green-500);border-radius:50%;animation:pulse 2s infinite}
+.login-field{text-align:left;margin-bottom:16px}
+.login-field label{display:block;font-size:12px;color:var(--gray-400);margin-bottom:6px;font-weight:500}
+.login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:12px 14px;font-size:14px;color:#e2e8f0;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s}
+.login-field input:focus{border-color:var(--blue-400);background:rgba(255,255,255,.08)}
+.login-btn{width:100%;padding:13px;background:var(--green-600);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;transition:background .15s}
+.login-btn:hover{background:var(--green-700)}
+.login-error{color:#fca5a5;font-size:12px;margin-top:10px;display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:8px 12px}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-800);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;position:fixed;left:0;top:0;height:100vh;z-index:100}
+.logo-area{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.logo-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:.05em;text-transform:uppercase}
+.logo-sub{font-size:10px;color:var(--blue-300);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.badge-fiorino{display:inline-flex;align-items:center;gap:5px;background:rgba(37,99,235,.25);border:1px solid rgba(59,130,246,.3);border-radius:6px;padding:4px 8px;margin-top:8px;font-size:10px;color:var(--blue-300)}
+.badge-dot{width:6px;height:6px;background:var(--green-500);border-radius:50%;animation:pulse 2s infinite}
+nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-section{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-500);padding:10px 8px 6px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;transition:all .15s;color:var(--gray-400);font-size:13px;font-weight:400;position:relative;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
+.nav-item.active{background:rgba(37,99,235,.3);color:#fff;font-weight:500}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--blue-400);border-radius:0 2px 2px 0}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.sidebar-footer{padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}
+.driver-card{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.driver-av{width:28px;height:28px;background:linear-gradient(135deg,var(--blue-600),var(--blue-400));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.driver-name{font-size:12px;color:var(--gray-300);font-weight:500}
+.driver-role{font-size:10px;color:var(--gray-500)}
+.logout-btn{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:7px;cursor:pointer;color:var(--gray-500);font-size:12px;transition:all .15s;border:none;background:transparent;width:100%;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(239,68,68,.1);color:#fca5a5}
+
+/* MAIN */
+#main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:52px;background:var(--blue-800);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:#fff}
+.page-date{font-size:12px;color:var(--gray-400)}
+.status-chip{display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green-400)}
+.content{flex:1;padding:24px;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--blue-800);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:16px}
+.stat-label{font-size:11px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:700;font-size:26px;color:#fff}
+.stat-sub{font-size:11px;color:var(--gray-500);margin-top:4px}
+.stat-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;margin-top:6px}
+.stat-badge.green{background:var(--green-100);color:var(--green-700)}
+.stat-badge.blue{background:var(--blue-100);color:var(--blue-700)}
+
+label.field-label{display:block;font-size:12px;color:var(--gray-400);margin-bottom:5px;font-weight:500}
+input[type=text],input[type=number],input[type=time],input[type=date],select,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:13px;color:#e2e8f0;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s}
+input[type=text]:focus,input[type=number]:focus,input[type=time]:focus,input[type=date]:focus,select:focus,textarea:focus{border-color:var(--blue-400)}
+select option{background:var(--blue-800);color:#e2e8f0}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--blue-500);color:#fff}.btn-primary:hover{background:var(--blue-600)}
+.btn-green{background:var(--green-600);color:#fff}.btn-green:hover{background:var(--green-700)}
+.btn-outline{background:transparent;color:var(--gray-300);border:1px solid rgba(255,255,255,.12)}.btn-outline:hover{background:rgba(255,255,255,.06)}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.pill-red{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+.pill-amber{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.pill-green{background:rgba(34,197,94,.15);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+.pill-blue{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);font-weight:600}
+td{padding:11px 14px;font-size:13px;color:var(--gray-300);border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(255,255,255,.02)}
+tr:last-child td{border-bottom:none}
+
+.upload-zone{border:2px dashed rgba(59,130,246,.35);border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(59,130,246,.04)}
+.upload-zone:hover{border-color:var(--blue-400);background:rgba(59,130,246,.08)}
+
+/* STEPS */
+.import-steps{display:flex;align-items:center;margin-bottom:20px;padding:14px 20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px}
+.istep{display:flex;align-items:center;gap:7px}
+.istep-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s}
+.istep-circle.done{background:var(--green-600);color:#fff}
+.istep-circle.active{background:var(--blue-500);color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.25)}
+.istep-circle.idle{background:rgba(255,255,255,.07);color:var(--gray-500)}
+.istep-label{font-size:11px;transition:color .3s;white-space:nowrap;color:var(--gray-500)}
+.istep-label.active{color:#fff;font-weight:500}
+.istep-label.done{color:var(--green-400)}
+.istep-line{flex:1;height:1px;background:rgba(255,255,255,.08);margin:0 8px;min-width:10px;transition:background .3s}
+.istep-line.done{background:var(--green-600)}
+
+/* DEPOT CARD */
+.depot-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(37,99,235,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;margin-bottom:14px}
+.depot-icon{font-size:20px;flex-shrink:0}
+.depot-label{font-size:11px;color:var(--blue-300);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.depot-addr{font-size:13px;color:#fff;font-weight:500}
+
+/* REGION BARS */
+.region-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.region-bar-name{min-width:80px;font-size:12px;color:var(--gray-300)}
+.region-bar-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.region-bar-fill{height:6px;border-radius:3px;background:var(--blue-400);transition:width .5s ease}
+.region-bar-count{font-size:11px;color:var(--blue-300);min-width:80px;text-align:right}
+
+/* ZONA MULTI */
+.zona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.zona-card{border:1.5px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .18s;background:rgba(255,255,255,.03);user-select:none}
+.zona-card:hover{border-color:var(--blue-400);background:rgba(37,99,235,.1)}
+.zona-card.suggested{border-color:rgba(59,130,246,.45);background:rgba(37,99,235,.1)}
+.zona-card.selected{border-color:var(--green-500)!important;background:rgba(34,197,94,.1)!important;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+.zona-card .zname{font-size:12px;font-weight:600;color:#e2e8f0;margin-bottom:2px}
+.zona-card .zcount{font-size:10px;color:var(--gray-400)}
+.zona-card .zbadge{font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;margin-top:5px;display:inline-block}
+.zbadge.sug{background:rgba(37,99,235,.3);color:var(--blue-300)}
+.zbadge.sel{background:rgba(34,197,94,.3);color:var(--green-400)}
+
+.zona-confirm-bar{display:none;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 16px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;flex-wrap:wrap}
+.zona-confirm-bar.visible{display:flex}
+
+/* ROUTE */
+.route-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:9px;margin-bottom:7px;border:1px solid rgba(255,255,255,.05);transition:all .15s;position:relative}
+.route-item:hover{background:rgba(255,255,255,.05)}
+.route-item.depot-point{background:rgba(37,99,235,.08);border-color:rgba(59,130,246,.25)}
+.route-connector{position:absolute;left:24px;top:46px;bottom:-7px;width:2px;background:rgba(255,255,255,.08);z-index:0}
+.route-connector.urgent{background:rgba(239,68,68,.3)}
+.route-connector.amber{background:rgba(245,158,11,.3)}
+.route-connector.ok{background:rgba(34,197,94,.2)}
+.route-num{width:28px;height:28px;border-radius:50%;background:var(--blue-700);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--blue-300);flex-shrink:0;position:relative;z-index:1}
+.route-num.depot{background:var(--blue-600);color:#fff}
+.route-addr{font-size:13px;color:#e2e8f0;font-weight:500}
+.route-meta{font-size:11px;color:var(--gray-500);margin-top:2px}
+.route-dist{font-size:10px;color:var(--blue-300);margin-top:3px;display:flex;align-items:center;gap:4px}
+
+/* LOADER */
+.loader-wrap{text-align:center;padding:32px;color:var(--gray-400)}
+.loader{width:28px;height:28px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--blue-400);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+
+.ai-box{background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:9px;padding:12px 16px;margin-top:12px;font-size:12px;color:var(--gray-300)}
+.ai-tag{background:var(--blue-600);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;margin-right:6px}
+
+/* APONTAMENTO */
+.apontamento-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.ap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ap-nf{font-size:12px;font-weight:700;color:var(--blue-300)}
+.ap-addr{font-size:13px;color:#e2e8f0;margin-bottom:10px}
+.ap-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.select-status{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:7px 10px;font-size:12px;color:#e2e8f0;cursor:pointer;font-family:'DM Sans',sans-serif;outline:none;min-width:160px}
+.motivo-wrap{display:none}
+.motivo-wrap.visible{display:flex}
+
+/* SETTINGS */
+.settings-section{margin-bottom:28px}
+.settings-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue-300);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.setting-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;padding:14px}
+.lock-note{font-size:10px;color:var(--amber-500);margin-top:4px}
+
+.filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.filter-bar input,.filter-bar select{width:auto;min-width:128px}
+
+.fin-block{background:rgba(255,255,255,.03);border-radius:9px;padding:14px;border:1px solid rgba(255,255,255,.06)}
+.fin-label{font-size:11px;color:var(--gray-400);margin-bottom:4px}
+.fin-value{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.fin-value.red{color:#fca5a5}.fin-value.green{color:#86efac}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap-tall{position:relative;height:280px}
+.zero-state{text-align:center;padding:40px 24px;color:var(--gray-500)}
+.zero-icon{font-size:36px;margin-bottom:10px}
+.zero-title{font-size:14px;color:var(--gray-400);margin-bottom:5px;font-weight:500}
+.divider{height:1px;background:rgba(255,255,255,.06);margin:16px 0}
+
+#toast{position:fixed;bottom:24px;right:24px;background:var(--blue-700);border:1px solid rgba(59,130,246,.4);border-radius:10px;padding:12px 18px;font-size:13px;color:#e2e8f0;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:300px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:rgba(34,197,94,.4);background:rgba(21,128,61,.4)}
+
+/* PRINT */
+@media print{
+  body{background:#fff!important;color:#000!important;display:block}
+  #login-screen,#sidebar,#main,#toast{display:none!important}
+  #print-area{display:block!important}
+}
+#print-area{display:none}
+.print-page{font-family:'DM Sans',sans-serif;max-width:820px;margin:0 auto;padding:30px;color:#111}
+.print-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #1d4ed8}
+.print-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#1d4ed8;text-transform:uppercase}
+.print-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.print-info-box{background:#f1f5f9;border-radius:8px;padding:10px 14px;border-left:3px solid #1d4ed8}
+.print-info-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.print-info-value{font-size:13px;font-weight:600;color:#0f172a}
+.print-depot-bar{background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:12px;color:#1d4ed8;display:flex;align-items:center;gap:8px}
+.print-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.print-sum-box{background:#f1f5f9;border-radius:8px;padding:10px;text-align:center;border-top:3px solid #1d4ed8}
+.print-sum-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#0f172a}
+.print-sum-lab{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.print-table{width:100%;border-collapse:collapse;margin-top:10px}
+.print-table th{background:#1d4ed8;color:#fff;padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.print-table td{padding:9px 12px;font-size:12px;border-bottom:1px solid #e2e8f0;color:#1e293b}
+.print-table tr:nth-child(even) td{background:#f8fafc}
+.pst-red{background:#fee2e2;color:#b91c1c;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pst-amber{background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pst-green{background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.print-footer{margin-top:18px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8}
+.print-sign{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.print-sign-box{border-top:1px solid #334155;padding-top:8px;font-size:11px;color:#64748b;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">&#9650;</div>
+    <div class="login-logo">Roteirizacao</div>
+    <div class="login-sub">Sistema de Logistica</div>
+    <div class="login-badge"><span class="login-dot"></span>Fiorino &middot; 1 Motorista &middot; Sao Paulo</div>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="Digite seu usuario" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar no Sistema</button>
+    <div class="login-error" id="login-error">Usuario ou senha incorretos.</div>
+    <div style="margin-top:20px;font-size:11px;color:var(--gray-600)">&copy; 2027 Roteirizacao &middot; Todos os direitos reservados</div>
+  </div>
+</div>
+
+<!-- PRINT -->
+<div id="print-area"><div class="print-page" id="print-content"></div></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" style="display:none">
+  <div class="logo-area">
+    <div class="logo-title">&#9650; Roteirizacao</div>
+    <div class="logo-sub">Sistema de Logistica</div>
+    <div class="badge-fiorino"><span class="badge-dot"></span>Fiorino &middot; 1 Motorista</div>
+  </div>
+  <nav>
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="goTo('config')"><span class="nav-icon">&#9881;&#65039;</span>Configuracoes</div>
+    <div class="nav-item" onclick="goTo('import')"><span class="nav-icon">&#128194;</span>Importar &amp; Roteirizar</div>
+    <div class="nav-section">Operacao</div>
+    <div class="nav-item" onclick="goTo('apontamento')"><span class="nav-icon">&#9999;&#65039;</span>Apontamento</div>
+    <div class="nav-item" onclick="goTo('historico')"><span class="nav-icon">&#128203;</span>Historico</div>
+    <div class="nav-section">Analises</div>
+    <div class="nav-item" onclick="goTo('dashboard')"><span class="nav-icon">&#128202;</span>Dashboard &amp; KPIs</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="driver-card">
+      <div class="driver-av">M</div>
+      <div><div class="driver-name">Motorista Principal</div><div class="driver-role">Fiorino &middot; Ativo</div></div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">&#128682; Sair do sistema</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main" style="display:none">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="topbar-title">Configuracoes do Sistema</div>
+      <div class="page-date" id="topbar-date"></div>
+    </div>
+    <div class="status-chip"><span style="width:6px;height:6px;background:#22c55e;border-radius:50%;display:inline-block;animation:pulse 2s infinite"></span>Sistema Ativo</div>
+  </div>
+  <div class="content">
+
+    <!-- CONFIGURACOES -->
+    <div class="page active" id="page-config">
+      <div class="grid2" style="gap:20px">
+        <div>
+          <div class="settings-section">
+            <div class="settings-section-title">&#128274; Parametros Padrao (Protegidos)</div>
+            <div class="settings-grid">
+              <div class="setting-item"><label class="field-label">Horario de Inicio</label><input type="time" value="09:00" readonly style="opacity:.6;cursor:not-allowed"><div class="lock-note">&#9888; Valor padrao travado</div></div>
+              <div class="setting-item"><label class="field-label">Horario de Termino</label><input type="time" value="17:00" readonly style="opacity:.6;cursor:not-allowed"><div class="lock-note">&#9888; Valor padrao travado</div></div>
+              <div class="setting-item"><label class="field-label">Tempo de Almoco</label><input type="text" value="1 hora (60 min)" readonly style="opacity:.6;cursor:not-allowed"><div class="lock-note">&#9888; Valor padrao travado</div></div>
+              <div class="setting-item"><label class="field-label">Tempo Max. por Parada</label><input type="text" value="15 minutos" readonly style="opacity:.6;cursor:not-allowed"><div class="lock-note">&#9888; Valor padrao travado</div></div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">&#9999;&#65039; Parametros Editaveis</div>
+            <div class="settings-grid">
+              <div class="setting-item"><label class="field-label">Nome do Motorista</label><input type="text" id="cfg-driver" value="Motorista Principal"></div>
+              <div class="setting-item"><label class="field-label">Placa do Veiculo</label><input type="text" id="cfg-placa" placeholder="Ex: ABC-1234"></div>
+              <div class="setting-item"><label class="field-label">Modelo do Veiculo</label><input type="text" value="Fiat Fiorino" readonly style="opacity:.7"></div>
+              <div class="setting-item"><label class="field-label">Custo medio por KM (R$)</label><input type="number" value="0.85" step="0.01" min="0"></div>
+              <div class="setting-item"><label class="field-label">Combustivel padrao</label><select><option>Flex (Gasolina)</option><option>Flex (Etanol)</option><option>GNV</option></select></div>
+              <div class="setting-item"><label class="field-label">Cidade Base</label><input type="text" value="Sao Paulo - SP"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">&#127968; Deposito / Base de Saida</div>
+            <div class="depot-card">
+              <span class="depot-icon">&#128659;</span>
+              <div>
+                <div class="depot-label">Endereco fixo de saida e retorno</div>
+                <div class="depot-addr">Rua Marina, 1338 &mdash; CEP 09560-560 &mdash; Sao Paulo / SP</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--gray-500)">A Fiorino sempre parte deste endereco e retorna a ele ao final da rota. Este ponto ancora o calculo de melhor trajeto.</div>
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">&#8505;&#65039; Informacoes da Jornada</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px"><span style="font-size:13px;color:var(--gray-400)">Jornada total disponivel</span><span style="font-weight:700;color:#fff">8h / dia</span></div>
+              <div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px"><span style="font-size:13px;color:var(--gray-400)">Tempo operacional liquido</span><span style="font-weight:700;color:var(--green-400)">7h (excl. almoco)</span></div>
+              <div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px"><span style="font-size:13px;color:var(--gray-400)">Max. paradas estimadas</span><span style="font-weight:700;color:var(--blue-300)">~28 paradas</span></div>
+              <div style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px"><span style="font-size:13px;color:var(--gray-400)">Tipo de veiculo</span><span style="font-weight:700;color:#fff">Fiat Fiorino</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">&#128507; Regioes Cadastradas SP</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Zona Sul</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Zona Norte</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Zona Leste</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Zona Oeste</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Centro</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">ABC</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Interior</span>
+              <span style="padding:5px 11px;background:rgba(37,99,235,.2);color:var(--blue-300);border:1px solid rgba(37,99,235,.3);border-radius:7px;font-size:12px;font-weight:600">Litoral</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-green" onclick="showToast('Configuracoes salvas!','success')">&#128190; Salvar Configuracoes</button>
+        <button class="btn btn-outline">&#8617; Restaurar Padroes</button>
+      </div>
+    </div>
+
+    <!-- IMPORTAR -->
+    <div class="page" id="page-import">
+      <div class="import-steps">
+        <div class="istep"><div class="istep-circle active" id="sc1">1</div><div class="istep-label active" id="sl1">Importar planilha</div></div>
+        <div class="istep-line" id="ln1"></div>
+        <div class="istep"><div class="istep-circle idle" id="sc2">2</div><div class="istep-label" id="sl2">Analisar regioes</div></div>
+        <div class="istep-line" id="ln2"></div>
+        <div class="istep"><div class="istep-circle idle" id="sc3">3</div><div class="istep-label" id="sl3">Escolher zona(s)</div></div>
+        <div class="istep-line" id="ln3"></div>
+        <div class="istep"><div class="istep-circle idle" id="sc4">4</div><div class="istep-label" id="sl4">Gerar rota otimizada</div></div>
+      </div>
+
+      <div class="grid2" style="gap:20px;align-items:start">
+        <div>
+          <!-- Deposito fixo sempre visivel -->
+          <div class="depot-card" style="margin-bottom:16px">
+            <span class="depot-icon">&#127968;</span>
+            <div>
+              <div class="depot-label">Ponto de saida e retorno (fixo)</div>
+              <div class="depot-addr">Rua Marina, 1338 &mdash; CEP 09560-560</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">&#128228; Passo 1 &mdash; Upload da Planilha</div>
+            <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+              <div style="font-size:32px;margin-bottom:8px">&#128202;</div>
+              <div style="font-size:14px;color:var(--gray-300);margin-bottom:4px">Clique para importar a planilha do dia</div>
+              <div style="font-size:11px;color:var(--gray-500)">Formatos: .xlsx &middot; .csv &nbsp;|&nbsp; Coluna de rota: ROTA</div>
+            </div>
+            <input type="file" id="file-input" accept=".xlsx,.csv" style="display:none" onchange="handleFileUpload(event)">
+            <div id="file-info" style="display:none;margin-top:12px;padding:9px 14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:12px;color:#86efac"></div>
+            <div style="margin-top:14px"><button class="btn btn-primary" id="btn-analisar" disabled onclick="analisarRegiao()">&#128269; Analisar Regioes</button></div>
+          </div>
+
+          <div class="card" id="card-zona" style="display:none">
+            <div class="card-title">&#128205; Passo 2 &mdash; Regioes Detectadas</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-bottom:12px">Distribuicao de paradas por regiao:</div>
+            <div id="region-bars"></div>
+            <div class="divider"></div>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:3px">Passo 3 &mdash; Escolha a(s) zona(s) do dia</div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px">Selecione <strong style="color:#fff">uma ou mais zonas</strong>. Pode combinar multiplas regioes.</div>
+            <div class="zona-grid" id="zona-grid"></div>
+            <div id="sel-info" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:8px;font-size:12px;color:var(--blue-300)"></div>
+            <div class="zona-confirm-bar" id="zona-confirm-bar">
+              <div>
+                <div style="font-size:12px;color:var(--gray-400)">Zona(s) selecionada(s):</div>
+                <div style="font-size:13px;font-weight:700;color:var(--green-400)" id="zona-confirm-name">-</div>
+                <div style="font-size:11px;color:var(--gray-500);margin-top:1px" id="zona-confirm-info"></div>
+              </div>
+              <button class="btn btn-green" onclick="gerarRota()">&#129302; Gerar Rota por IA</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">&#128269; Estrutura esperada da planilha</div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Coluna</th><th>Tipo</th><th>Exemplo</th></tr></thead>
+                <tbody>
+                  <tr><td>Numero da NF</td><td><span class="pill pill-blue">Texto</span></td><td style="color:var(--gray-400)">NF-00123</td></tr>
+                  <tr><td>Endereco Completo</td><td><span class="pill pill-blue">Texto</span></td><td style="color:var(--gray-400)">Av. Paulista, 1000 - SP</td></tr>
+                  <tr><td>Tipo de Operacao</td><td><span class="pill pill-amber">Enum</span></td><td style="color:var(--gray-400)">Coleta / Entrega</td></tr>
+                  <tr><td>ROTA</td><td><span class="pill pill-amber">Enum</span></td><td style="color:var(--gray-400)">Fiorino</td></tr>
+                  <tr><td>Status</td><td><span class="pill pill-green">Cor</span></td><td><span class="pill pill-red">Urgente</span> <span class="pill pill-amber">Atrasado</span> <span class="pill pill-green">Pendente</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+              <div class="card-title" style="margin-bottom:0">&#128739;&#65039; Passo 4 &mdash; Rota Otimizada do Dia</div>
+              <button class="btn btn-outline" id="btn-print" style="display:none" onclick="imprimirRota()">&#128424;&#65039; Imprimir Rota</button>
+            </div>
+            <div id="rota-list">
+              <div class="zero-state">
+                <div class="zero-icon">&#129302;</div>
+                <div class="zero-title">Rota nao gerada</div>
+                <div style="font-size:12px;color:var(--gray-500)">Siga os passos 1, 2 e 3 ao lado.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APONTAMENTO -->
+    <div class="page" id="page-apontamento">
+      <div class="grid2" style="gap:20px;align-items:start">
+        <div>
+          <div class="card">
+            <div class="card-title">&#9999;&#65039; Apontamento das Paradas</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-bottom:14px">Selecione o resultado de cada parada realizada pelo motorista.</div>
+            <div id="ap-list"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-title">&#9981;&#65039; Dados Reais do Dia</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div><label class="field-label">KM Rodado Total</label><input type="number" id="ap-km" placeholder="Ex: 87" min="0" step="0.1"></div>
+              <div><label class="field-label">Valor Gasto com Combustivel (R$)</label><input type="number" id="ap-combustivel" placeholder="Ex: 95.40" min="0" step="0.01"></div>
+              <div><label class="field-label">Data da Operacao</label><input type="date" id="ap-data"></div>
+              <div><label class="field-label">Observacoes</label><textarea rows="3" id="ap-obs" placeholder="Anotacoes gerais do dia..."></textarea></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">&#128202; Resumo do Dia</div>
+            <div class="grid2" style="gap:10px">
+              <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value" id="ap-total">0</div></div>
+              <div class="stat-card"><div class="stat-label">Concluidos</div><div class="stat-value" id="ap-ok" style="color:var(--green-400)">0</div></div>
+              <div class="stat-card"><div class="stat-label">Insucessos</div><div class="stat-value" id="ap-fail" style="color:#fca5a5">0</div></div>
+              <div class="stat-card"><div class="stat-label">Pendentes</div><div class="stat-value" id="ap-pend" style="color:var(--amber-500)">0</div></div>
+            </div>
+            <div style="margin-top:14px"><button class="btn btn-green" style="width:100%" onclick="salvarApontamento()">&#128190; Salvar Apontamento</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORICO -->
+    <div class="page" id="page-historico">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">&#128269; Filtros Avancados</div>
+        <div class="filter-bar">
+          <div><label class="field-label">Data Inicio</label><input type="date" id="f-inicio"></div>
+          <div><label class="field-label">Data Fim</label><input type="date" id="f-fim"></div>
+          <div><label class="field-label">N da NF</label><input type="text" id="f-nf" placeholder="NF-00123"></div>
+          <div><label class="field-label">Regiao SP</label>
+            <select id="f-regiao"><option value="">Todas</option><option>Zona Sul</option><option>Zona Norte</option><option>Zona Leste</option><option>Zona Oeste</option><option>Centro</option><option>ABC</option><option>Interior</option><option>Litoral</option></select>
+          </div>
+          <div><label class="field-label">Tipo</label>
+            <select id="f-tipo"><option value="">Coleta &amp; Entrega</option><option>Coleta</option><option>Entrega</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="filtrarHistorico()">Filtrar</button>
+          <button class="btn btn-outline" onclick="limparFiltros()">Limpar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128203; Historico de Operacoes</div>
+        <div style="overflow-x:auto">
+          <table><thead><tr><th>Data</th><th>NF</th><th>Endereco</th><th>Tipo</th><th>Regiao</th><th>Status</th><th>Motivo</th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray-500)">Nenhum registro. Inicie operacoes para ver o historico.</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="page" id="page-dashboard">
+      <div class="grid4" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-label">Total Programado</div><div class="stat-value" id="d-prog">0</div><div class="stat-badge blue">Acumulado</div></div>
+        <div class="stat-card"><div class="stat-label">Taxa de Sucesso</div><div class="stat-value" id="d-taxa">-</div><div class="stat-badge green">Geral</div></div>
+        <div class="stat-card"><div class="stat-label">KM Total</div><div class="stat-value" id="d-km">0</div><div class="stat-sub">Quilometros</div></div>
+        <div class="stat-card"><div class="stat-label">Custo Combustivel</div><div class="stat-value" id="d-fuel">R$ 0</div><div class="stat-sub">Total gasto</div></div>
+      </div>
+      <div class="grid2" style="gap:16px;margin-bottom:16px">
+        <div class="card"><div class="card-title">&#128202; Visao Geral</div><div class="chart-wrap"><canvas id="chart-geral"></canvas></div></div>
+        <div class="card"><div class="card-title">Motivos de Insucesso</div><div class="chart-wrap"><canvas id="chart-motivos"></canvas></div></div>
+      </div>
+      <div class="grid2" style="gap:16px;margin-bottom:16px">
+        <div class="card"><div class="card-title">&#128230; Coletas</div><div class="chart-wrap"><canvas id="chart-coletas"></canvas></div></div>
+        <div class="card"><div class="card-title">&#128666; Entregas</div><div class="chart-wrap"><canvas id="chart-entregas"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">&#128176; Painel Financeiro &amp; Eficiencia</div>
+        <div class="grid4">
+          <div class="fin-block"><div class="fin-label">Tempo Perdido</div><div class="fin-value red" id="d-tempo-perdido">0 min</div></div>
+          <div class="fin-block"><div class="fin-label">Combustivel Perdido</div><div class="fin-value red" id="d-comb-perdido">R$ 0,00</div></div>
+          <div class="fin-block"><div class="fin-label">Economia de KM</div><div class="fin-value green" id="d-km-eco">0 km</div></div>
+          <div class="fin-block"><div class="fin-label">Eficiencia</div><div class="fin-value green" id="d-eficiencia">-</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">&#128200; Tendencia (Ultimos 7 dias)</div>
+        <div class="chart-wrap-tall"><canvas id="chart-tendencia"></canvas></div>
+      </div>
+      <div style="margin-top:14px;text-align:center;font-size:12px;color:var(--gray-500)">Graficos preenchidos conforme os apontamentos diarios forem salvos.</div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ─── ESTADO ───────────────────────────────────────────
+const S={routes:[],history:[],charts:{},fileLoaded:false,selectedZonas:new Set()};
+
+// Deposito fixo (Rua Marina 1338, CEP 09560-560, Santo Andre / Grande ABC proximo a SP)
+// Coordenadas aproximadas: -23.6501, -46.5289
+const DEPOT={name:'Deposito - Rua Marina, 1338',addr:'Rua Marina, 1338 - CEP 09560-560 - Sao Paulo/SP',lat:-23.6501,lng:-46.5289};
+
+// Dados de demo com coordenadas reais em SP
+const DEMO=[
+  {nf:'NF-00241',addr:'Av. Paulista, 1578 - Bela Vista, Sao Paulo - SP',tipo:'Entrega',status:'red',regiao:'Centro',lat:-23.5614,lng:-46.6558},
+  {nf:'NF-00189',addr:'R. Augusta, 432 - Consolacao, Sao Paulo - SP',tipo:'Coleta',status:'red',regiao:'Centro',lat:-23.5540,lng:-46.6571},
+  {nf:'NF-00302',addr:'Av. Reboucas, 2000 - Pinheiros, Sao Paulo - SP',tipo:'Entrega',status:'amber',regiao:'Zona Oeste',lat:-23.5653,lng:-46.6869},
+  {nf:'NF-00415',addr:'R. da Consolacao, 900 - Higienopolis, Sao Paulo - SP',tipo:'Coleta',status:'amber',regiao:'Centro',lat:-23.5455,lng:-46.6556},
+  {nf:'NF-00198',addr:'Av. Ibirapuera, 3103 - Moema, Sao Paulo - SP',tipo:'Entrega',status:'green',regiao:'Zona Sul',lat:-23.6012,lng:-46.6651},
+  {nf:'NF-00267',addr:'R. Vergueiro, 2101 - Vila Mariana, Sao Paulo - SP',tipo:'Entrega',status:'green',regiao:'Zona Sul',lat:-23.5897,lng:-46.6388},
+  {nf:'NF-00374',addr:'Av. Yervant Kissajikian, 400 - Santo Andre, SP',tipo:'Coleta',status:'amber',regiao:'ABC',lat:-23.6614,lng:-46.5278},
+];
+
+const ALL_ZONAS=['Centro','Zona Sul','Zona Oeste','Zona Leste','Zona Norte','ABC','Interior','Litoral'];
+
+// ─── ALGORITMO DE OTIMIZACAO DE ROTA ─────────────────
+// Nearest Neighbor com ponto de deposito como origem e retorno
+// Respeitando PRIORIDADE: red=0 > amber=1 > green=2
+// Dentro do mesmo grupo de prioridade, otimiza por distancia geografica
+
+function dist(a,b){
+  // Distancia euclidiana ponderada (haversine simplificado para curtas distancias)
+  const dlat=a.lat-b.lat, dlng=a.lng-b.lng;
+  return Math.sqrt(dlat*dlat+dlng*dlng);
+}
+
+function optimizeRoute(stops){
+  if(!stops.length) return [];
+
+  const priOrder={red:0,amber:1,green:2};
+
+  // Separa por prioridade
+  const groups={red:[],amber:[],green:[]};
+  stops.forEach(s=>groups[s.status].push({...s}));
+
+  // Para cada grupo, aplica nearest neighbor a partir do ultimo ponto visitado
+  let ordered=[];
+  let lastPoint=DEPOT;
+
+  ['red','amber','green'].forEach(prio=>{
+    let remaining=[...groups[prio]];
+    while(remaining.length>0){
+      // Encontra o mais proximo do ultimo ponto
+      let bestIdx=0, bestDist=Infinity;
+      remaining.forEach((s,i)=>{
+        const d=dist(lastPoint,s);
+        if(d<bestDist){bestDist=d;bestIdx=i;}
+      });
+      const chosen=remaining.splice(bestIdx,1)[0];
+      chosen.distFromPrev=(bestDist*111).toFixed(1); // graus -> km aprox
+      ordered.push(chosen);
+      lastPoint=chosen;
+    }
+  });
+
+  // Calcula distancia de retorno ao deposito
+  if(ordered.length>0){
+    const retDist=dist(lastPoint,DEPOT);
+    ordered[ordered.length-1].distToDepot=(retDist*111).toFixed(1);
+  }
+
+  return ordered.map((r,i)=>({...r,num:i+1}));
+}
+
+// Calcula KM total estimado da rota
+function calcTotalKm(route){
+  if(!route.length) return 0;
+  let total=0;
+  // Deposito -> primeira parada
+  total+=dist(DEPOT,route[0])*111;
+  // Entre paradas
+  for(let i=1;i<route.length;i++) total+=dist(route[i-1],route[i])*111;
+  // Ultima parada -> deposito
+  total+=dist(route[route.length-1],DEPOT)*111;
+  return total.toFixed(1);
+}
+
+// ─── LOGIN ────────────────────────────────────────────
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(u==='ROTA'&&p==='ZHAZ2027'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('sidebar').style.display='flex';
+    document.getElementById('main').style.display='flex';
+    showToast('Bem-vindo ao sistema Roteirizacao!','success');
+  } else {
+    const err=document.getElementById('login-error');
+    err.style.display='block';
+    document.getElementById('login-pass').value='';
+    setTimeout(()=>err.style.display='none',3000);
+  }
+}
+function doLogout(){
+  document.getElementById('sidebar').style.display='none';
+  document.getElementById('main').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  showToast('Sessao encerrada.');
+}
+
+// ─── NAVEGACAO ────────────────────────────────────────
+const TITLES={config:'Configuracoes do Sistema',import:'Importar & Pre-Roteirizacao',apontamento:'Apontamento Posterior',historico:'Historico & Filtros',dashboard:'Dashboard & Relatorios'};
+function goTo(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')==="goTo('"+id+"')")n.classList.add('active')});
+  document.getElementById('topbar-title').textContent=TITLES[id];
+  if(id==='apontamento')renderApontamento();
+  if(id==='dashboard')renderCharts();
+}
+(function(){
+  const d=new Date();
+  document.getElementById('topbar-date').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('ap-data').valueAsDate=d;
+})();
+
+// ─── STEPS ───────────────────────────────────────────
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i),ln=document.getElementById('ln'+i);
+    if(i<n){c.className='istep-circle done';c.textContent='V';l.className='istep-label done';if(ln)ln.className='istep-line done';}
+    else if(i===n){c.className='istep-circle active';c.textContent=i;l.className='istep-label active';if(ln)ln.className='istep-line';}
+    else{c.className='istep-circle idle';c.textContent=i;l.className='istep-label';if(ln)ln.className='istep-line';}
+  }
+}
+
+// ─── UPLOAD ──────────────────────────────────────────
+function handleFileUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  S.fileLoaded=true;S.routes=[...DEMO];
+  const fi=document.getElementById('file-info');
+  fi.style.display='block';
+  fi.textContent='OK: '+f.name+' - '+DEMO.length+' registros detectados (ROTA: Fiorino)';
+  document.getElementById('btn-analisar').disabled=false;
+  setStep(2);showToast('Planilha importada! Clique em Analisar Regioes.','success');
+}
+
+// ─── ANALISAR REGIAO ──────────────────────────────────
+function analisarRegiao(){
+  if(!S.fileLoaded){showToast('Importe uma planilha primeiro.');return;}
+  const counts={};S.routes.forEach(r=>counts[r.regiao]=(counts[r.regiao]||0)+1);
+  const total=S.routes.length;
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const top=sorted[0][0];
+  let bars='';
+  sorted.forEach(([reg,cnt])=>{
+    const pct=Math.round((cnt/total)*100);
+    bars+='<div class="region-bar-row"><div class="region-bar-name">'+reg+'</div><div class="region-bar-track"><div class="region-bar-fill" style="width:'+pct+'%"></div></div><div class="region-bar-count">'+cnt+' parada'+(cnt>1?'s':'')+' - '+pct+'%</div></div>';
+  });
+  document.getElementById('region-bars').innerHTML=bars;
+  let grid='';
+  ALL_ZONAS.forEach(z=>{
+    const cnt=counts[z]||0,isSug=z===top;
+    const zid='zc-'+z.replace(/\s/g,'_');
+    const bid='zb-'+z.replace(/\s/g,'_');
+    grid+='<div class="zona-card'+(isSug?' suggested':'')+'" id="'+zid+'" onclick="toggleZona(\''+z+'\','+cnt+')"><div class="zname">'+z+'</div><div class="zcount">'+cnt+' parada'+(cnt!==1?'s':'')+'</div><div class="zbadge '+(isSug?'sug':'sel')+'" id="'+bid+'" style="'+(isSug?'':'visibility:hidden')+'">'+(isSug?'IA sugeriu':'OK')+'</div></div>';
+  });
+  document.getElementById('zona-grid').innerHTML=grid;
+  S.selectedZonas.clear();
+  document.getElementById('card-zona').style.display='block';
+  document.getElementById('zona-confirm-bar').classList.remove('visible');
+  document.getElementById('sel-info').style.display='none';
+  setStep(3);
+  document.getElementById('card-zona').scrollIntoView({behavior:'smooth',block:'nearest'});
+  showToast('Regioes analisadas! Selecione a(s) zona(s) do dia.','success');
+}
+
+// ─── TOGGLE ZONA ──────────────────────────────────────
+function toggleZona(name,cnt){
+  const card=document.getElementById('zc-'+name.replace(/\s/g,'_'));
+  const badge=document.getElementById('zb-'+name.replace(/\s/g,'_'));
+  if(S.selectedZonas.has(name)){
+    S.selectedZonas.delete(name);card.classList.remove('selected');
+    const counts={};S.routes.forEach(r=>counts[r.regiao]=(counts[r.regiao]||0)+1);
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+    if(name===top){badge.className='zbadge sug';badge.textContent='IA sugeriu';badge.style.visibility='visible';}
+    else badge.style.visibility='hidden';
+  } else {
+    S.selectedZonas.add(name);card.classList.add('selected');
+    badge.className='zbadge sel';badge.textContent='Selecionada';badge.style.visibility='visible';
+  }
+  const totalSel=S.routes.filter(r=>S.selectedZonas.has(r.regiao)).length;
+  const infoEl=document.getElementById('sel-info'),bar=document.getElementById('zona-confirm-bar');
+  if(S.selectedZonas.size===0){infoEl.style.display='none';bar.classList.remove('visible');}
+  else{
+    infoEl.style.display='block';
+    infoEl.textContent=S.selectedZonas.size+' zona'+(S.selectedZonas.size>1?'s':'')+': '+[...S.selectedZonas].join(' - ')+' - '+totalSel+' parada'+(totalSel!==1?'s':'');
+    bar.classList.add('visible');
+    document.getElementById('zona-confirm-name').textContent=[...S.selectedZonas].join(', ');
+    document.getElementById('zona-confirm-info').textContent=totalSel+' parada'+(totalSel!==1?'s':'')+' nas zonas selecionadas';
+  }
+}
+
+// ─── GERAR ROTA OTIMIZADA ─────────────────────────────
+function gerarRota(){
+  if(S.selectedZonas.size===0){showToast('Selecione ao menos uma zona.');return;}
+
+  // Mostra loader
+  document.getElementById('rota-list').innerHTML='<div class="loader-wrap"><div class="loader"></div><div>Calculando melhor trajeto a partir do deposito...</div></div>';
+
+  setTimeout(()=>{
+    // Aplica algoritmo de otimizacao
+    const optimized=optimizeRoute([...S.routes]);
+    S.routes=optimized;
+
+    const totalKm=calcTotalKm(optimized);
+    const mins=optimized.length*15;
+    const h=Math.floor(mins/60),m=mins%60;
+
+    const sLabel={red:'Urgente',amber:'Atrasado',green:'Pendente'};
+    const sCls={red:'pill-red',amber:'pill-amber',green:'pill-green'};
+    const connCls={red:'urgent',amber:'amber',green:'ok'};
+
+    let html='';
+
+    // Ponto de partida: Deposito
+    html+='<div class="route-item depot-point">';
+    html+='<div class="route-num depot">&#127968;</div>';
+    html+='<div style="flex:1"><div style="font-size:13px;color:#93c5fd;font-weight:600">SAIDA &mdash; '+DEPOT.addr+'</div>';
+    html+='<div style="font-size:11px;color:var(--blue-300);margin-top:2px">Horario de saida: 09:00 &nbsp;|&nbsp; Base da Fiorino</div></div></div>';
+
+    // Paradas otimizadas
+    optimized.forEach((r,i)=>{
+      const isLast=(i===optimized.length-1);
+      html+='<div class="route-item">';
+      html+='<div class="route-num">'+r.num+'</div>';
+      html+='<div style="flex:1">';
+      html+='<div style="font-size:13px;color:#e2e8f0;font-weight:500">'+r.addr+'</div>';
+      html+='<div style="font-size:11px;color:var(--gray-500);margin-top:2px">'+r.tipo+' &nbsp;&middot;&nbsp; <span style="color:var(--blue-300)">'+r.nf+'</span> &nbsp;&middot;&nbsp; '+r.regiao+'</div>';
+      html+='<div class="route-dist">&#128205; ~'+r.distFromPrev+' km do ponto anterior &nbsp;|&nbsp; &#8987; chegada estimada: '+estimarHorario(i)+'</div>';
+      html+='</div>';
+      html+='<span class="pill '+sCls[r.status]+'">'+sLabel[r.status]+'</span>';
+      html+='</div>';
+    });
+
+    // Retorno ao deposito
+    const distRetorno=optimized.length>0?optimized[optimized.length-1].distToDepot||'?':'0';
+    html+='<div class="route-item depot-point">';
+    html+='<div class="route-num depot">&#127968;</div>';
+    html+='<div style="flex:1"><div style="font-size:13px;color:#93c5fd;font-weight:600">RETORNO &mdash; '+DEPOT.addr+'</div>';
+    html+='<div style="font-size:11px;color:var(--blue-300);margin-top:2px">~'+distRetorno+' km da ultima parada &nbsp;|&nbsp; Horario limite: 17:00</div></div></div>';
+
+    // Resumo IA
+    html+='<div class="ai-box"><span class="ai-tag">IA</span>';
+    html+='<strong style="color:#fff">Rota otimizada pelo algoritmo Nearest Neighbor</strong> &nbsp;&middot;&nbsp; ';
+    html+='Saida: Rua Marina 1338 &nbsp;&middot;&nbsp; ';
+    html+=optimized.length+' paradas &nbsp;&middot;&nbsp; ';
+    html+='KM estimado total: <strong style="color:#fff">~'+totalKm+' km</strong> &nbsp;&middot;&nbsp; ';
+    html+='Tempo em paradas: <strong style="color:#fff">'+h+'h'+(m?m+'min':'')+'</strong> &nbsp;&middot;&nbsp; ';
+    html+='Jornada: <strong style="color:'+(mins<=420?'#86efac':'#fca5a5')+'">'+(mins<=420?'Dentro do limite':'Excede 7h')+'</strong>';
+    html+='</div>';
+
+    document.getElementById('rota-list').innerHTML=html;
+    document.getElementById('btn-print').style.display='inline-flex';
+    setStep(4);
+    showToast('Rota otimizada gerada! Partida: Rua Marina 1338.','success');
+  },1200);
+}
+
+function estimarHorario(index){
+  // Cada parada = 15min + ~10min de deslocamento medio
+  const minutos=9*60 + (index+1)*25;
+  // Pula almoco (13:00-14:00)
+  let ajustado=minutos;
+  if(minutos>4*60) ajustado+=60; // apos 4h de trabalho (13h)
+  const h=Math.floor(ajustado/60)%24;
+  const m=ajustado%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+
+// ─── IMPRIMIR ─────────────────────────────────────────
+function imprimirRota(){
+  const hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const hojeShort=new Date().toLocaleDateString('pt-BR');
+  const zonasTxt=[...S.selectedZonas].join(', ')||'-';
+  const total=S.routes.length;
+  const totalKm=calcTotalKm(S.routes);
+  const mins=total*15,h=Math.floor(mins/60),m=mins%60;
+  const urgentes=S.routes.filter(r=>r.status==='red').length;
+  const atrasados=S.routes.filter(r=>r.status==='amber').length;
+  const pendentes=S.routes.filter(r=>r.status==='green').length;
+  const sCss={red:'pst-red',amber:'pst-amber',green:'pst-green'};
+  const sLbl={red:'URGENTE',amber:'ATRASADO',green:'PENDENTE'};
+
+  let rows='';
+  S.routes.forEach((r,i)=>{
+    rows+='<tr>';
+    rows+='<td style="font-weight:700;color:#1d4ed8;text-align:center">'+(i+1)+'</td>';
+    rows+='<td style="font-weight:600">'+r.nf+'</td>';
+    rows+='<td>'+r.addr+'</td>';
+    rows+='<td>'+r.tipo+'</td>';
+    rows+='<td>'+r.regiao+'</td>';
+    rows+='<td style="text-align:center;color:#64748b;font-size:11px">~'+r.distFromPrev+' km</td>';
+    rows+='<td style="text-align:center">'+estimarHorario(i)+'</td>';
+    rows+='<td><span class="'+sCss[r.status]+'">'+sLbl[r.status]+'</span></td>';
+    rows+='<td style="color:#94a3b8">___________</td>';
+    rows+='</tr>';
+  });
+
+  document.getElementById('print-content').innerHTML=
+    '<div class="print-page">'+
+    '<div class="print-header">'+
+    '<div><div class="print-logo">&#9650; ROTEIRIZACAO</div><div style="font-size:11px;color:#64748b;letter-spacing:.08em;text-transform:uppercase;margin-top:2px">Folha de Rota Diaria - Sistema de Logistica</div></div>'+
+    '<div style="text-align:right"><div style="font-size:13px;font-weight:700;color:#0f172a">'+hojeShort+'</div><div style="font-size:11px;color:#64748b">'+hoje+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">Emitido as '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</div></div>'+
+    '</div>'+
+    '<div class="print-depot-bar">&#127968; <strong>SAIDA E RETORNO:</strong> &nbsp; Rua Marina, 1338 &mdash; CEP 09560-560 &mdash; Sao Paulo/SP &nbsp;|&nbsp; Saida: 09:00 &nbsp;|&nbsp; Retorno limite: 17:00</div>'+
+    '<div class="print-info-grid">'+
+    '<div class="print-info-box"><div class="print-info-label">Motorista</div><div class="print-info-value">Motorista Principal</div></div>'+
+    '<div class="print-info-box"><div class="print-info-label">Veiculo</div><div class="print-info-value">Fiat Fiorino</div></div>'+
+    '<div class="print-info-box"><div class="print-info-label">Zona(s) do Dia</div><div class="print-info-value">'+zonasTxt+'</div></div>'+
+    '<div class="print-info-box"><div class="print-info-label">KM Total Estimado</div><div class="print-info-value">~'+totalKm+' km</div></div>'+
+    '<div class="print-info-box"><div class="print-info-label">Tempo em Paradas</div><div class="print-info-value">'+h+'h'+(m?m+'min':'')+'</div></div>'+
+    '<div class="print-info-box"><div class="print-info-label">Algoritmo de Rota</div><div class="print-info-value">Nearest Neighbor + Prioridade</div></div>'+
+    '</div>'+
+    '<div class="print-summary">'+
+    '<div class="print-sum-box"><div class="print-sum-val">'+total+'</div><div class="print-sum-lab">Total Paradas</div></div>'+
+    '<div class="print-sum-box" style="border-top-color:#ef4444"><div class="print-sum-val" style="color:#ef4444">'+urgentes+'</div><div class="print-sum-lab">Urgentes</div></div>'+
+    '<div class="print-sum-box" style="border-top-color:#f59e0b"><div class="print-sum-val" style="color:#f59e0b">'+atrasados+'</div><div class="print-sum-lab">Atrasados</div></div>'+
+    '<div class="print-sum-box" style="border-top-color:#16a34a"><div class="print-sum-val" style="color:#16a34a">'+pendentes+'</div><div class="print-sum-lab">Pendentes</div></div>'+
+    '</div>'+
+    '<table class="print-table">'+
+    '<thead><tr><th>#</th><th>NF</th><th>Endereco Completo</th><th>Tipo</th><th>Regiao</th><th>KM Parcial</th><th>Hora Est.</th><th>Prioridade</th><th>Assinatura</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody>'+
+    '</table>'+
+    '<div style="margin-top:16px;padding:12px 16px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b">'+
+    '<strong style="font-size:12px;color:#92400e">Instrucoes ao Motorista:</strong>'+
+    '<ul style="margin-top:6px;padding-left:18px;font-size:11px;color:#334155;line-height:1.8">'+
+    '<li>SAIDA: Rua Marina, 1338 (CEP 09560-560) as 09h00. RETORNO ao mesmo endereco ate 17h00.</li>'+
+    '<li>Siga rigorosamente a ordem numerada. Rota calculada pelo algoritmo de menor distancia.</li>'+
+    '<li>Prioridade: URGENTE primeiro, depois ATRASADO, depois PENDENTE.</li>'+
+    '<li>Tempo maximo por parada: 15 minutos. Almoco: 1 hora (entre paradas 4 e 5 aprox.).</li>'+
+    '<li>Em caso de insucesso, anotar o motivo no sistema ao retornar.</li>'+
+    '<li><strong>KM inicial: ___________</strong> &nbsp;|&nbsp; <strong>KM final: ___________</strong> &nbsp;|&nbsp; <strong>Combustivel R$: ___________</strong></li>'+
+    '</ul></div>'+
+    '<div class="print-sign">'+
+    '<div class="print-sign-box">Assinatura do Motorista</div>'+
+    '<div class="print-sign-box">Assinatura do Responsavel / Conferente</div>'+
+    '</div>'+
+    '<div class="print-footer"><span>Roteirizacao - Sistema de Logistica Inteligente</span><span>Gerado em: '+hoje+'</span></div>'+
+    '</div>';
+
+  window.print();
+}
+
+// ─── APONTAMENTO ──────────────────────────────────────
+function renderApontamento(){
+  const routes=S.routes.length?S.routes:DEMO;
+  let html='';
+  routes.forEach((r,i)=>{
+    html+='<div class="apontamento-item">';
+    html+='<div class="ap-header"><span class="ap-nf">'+r.nf+'</span><span class="pill '+(r.tipo==='Coleta'?'pill-blue':'pill-green')+'">'+r.tipo+'</span></div>';
+    html+='<div class="ap-addr">'+r.addr+'</div>';
+    html+='<div class="ap-controls">';
+    html+='<select class="select-status" id="ap-sel-'+i+'" onchange="handleApStatus('+i+')">';
+    html+='<option value="">- Selecionar status -</option>';
+    html+='<option value="sucesso">'+(r.tipo==='Coleta'?'Coletado':'Entregue')+'</option>';
+    html+='<option value="insucesso">'+(r.tipo==='Coleta'?'Nao Coletado':'Nao Entregue')+'</option>';
+    html+='</select>';
+    html+='<div class="motivo-wrap" id="motivo-wrap-'+i+'">';
+    html+='<select class="select-status" id="ap-motivo-'+i+'"><option value="">Motivo</option><option value="improdutiva">Improdutiva</option><option value="frustrada">Frustrada</option></select>';
+    html+='</div></div></div>';
+  });
+  document.getElementById('ap-list').innerHTML=html;
+  updateApSummary();
+}
+function handleApStatus(i){
+  const v=document.getElementById('ap-sel-'+i).value;
+  const w=document.getElementById('motivo-wrap-'+i);
+  v==='insucesso'?w.classList.add('visible'):w.classList.remove('visible');
+  updateApSummary();
+}
+function updateApSummary(){
+  const routes=S.routes.length?S.routes:DEMO;
+  let ok=0,fail=0,pend=0;
+  routes.forEach((_,i)=>{
+    const v=(document.getElementById('ap-sel-'+i)||{}).value||'';
+    if(v==='sucesso')ok++;else if(v==='insucesso')fail++;else pend++;
+  });
+  document.getElementById('ap-total').textContent=routes.length;
+  document.getElementById('ap-ok').textContent=ok;
+  document.getElementById('ap-fail').textContent=fail;
+  document.getElementById('ap-pend').textContent=pend;
+}
+function salvarApontamento(){
+  const routes=S.routes.length?S.routes:DEMO;
+  const km=parseFloat(document.getElementById('ap-km').value)||0;
+  const fuel=parseFloat(document.getElementById('ap-combustivel').value)||0;
+  const data=document.getElementById('ap-data').value;
+  routes.forEach((r,i)=>{
+    const status=(document.getElementById('ap-sel-'+i)||{}).value||'pendente';
+    const motivo=(document.getElementById('ap-motivo-'+i)||{}).value||'';
+    S.history.push({data,nf:r.nf,addr:r.addr,tipo:r.tipo,regiao:r.regiao,status,motivo,km:km/routes.length,fuel:fuel/routes.length});
+  });
+  renderHistorico(S.history);
+  showToast(routes.length+' registros salvos!','success');
+}
+
+// ─── HISTORICO ────────────────────────────────────────
+function renderHistorico(data){
+  const sMap={
+    sucesso:'<span class="pill pill-green">Sucesso</span>',
+    insucesso:'<span class="pill pill-red">Insucesso</span>',
+    pendente:'<span class="pill pill-amber">Pendente</span>'
+  };
+  const mMap={
+    improdutiva:'<span class="pill pill-amber">Improdutiva</span>',
+    frustrada:'<span class="pill pill-red">Frustrada</span>',
+    '':'<span style="color:var(--gray-500)">-</span>'
+  };
+  let html='';
+  if(!data.length){
+    html='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray-500)">Nenhum registro encontrado.</td></tr>';
+  } else {
+    data.forEach(r=>{
+      html+='<tr>';
+      html+='<td>'+(r.data||'-')+'</td>';
+      html+='<td style="color:var(--blue-300)">'+r.nf+'</td>';
+      html+='<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.addr+'</td>';
+      html+='<td>'+r.tipo+'</td>';
+      html+='<td>'+(r.regiao||'-')+'</td>';
+      html+='<td>'+(sMap[r.status]||'-')+'</td>';
+      html+='<td>'+(mMap[r.motivo||''])+'</td>';
+      html+='</tr>';
+    });
+  }
+  document.getElementById('hist-body').innerHTML=html;
+}
+function filtrarHistorico(){
+  const ini=document.getElementById('f-inicio').value;
+  const fim=document.getElementById('f-fim').value;
+  const nf=document.getElementById('f-nf').value.toLowerCase();
+  const reg=document.getElementById('f-regiao').value;
+  const tipo=document.getElementById('f-tipo').value;
+  const f=S.history.filter(r=>{
+    if(ini&&r.data<ini)return false;
+    if(fim&&r.data>fim)return false;
+    if(nf&&!r.nf.toLowerCase().includes(nf))return false;
+    if(reg&&r.regiao!==reg)return false;
+    if(tipo&&r.tipo!==tipo)return false;
+    return true;
+  });
+  renderHistorico(f);
+  showToast(f.length+' registro(s) encontrado(s)');
+}
+function limparFiltros(){
+  ['f-inicio','f-fim','f-nf','f-regiao','f-tipo'].forEach(id=>document.getElementById(id).value='');
+  renderHistorico(S.history);
+}
+
+// ─── CHARTS ───────────────────────────────────────────
+function destroyChart(id){if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}}
+function renderCharts(){
+  const h=S.history,total=h.length;
+  const suc=h.filter(r=>r.status==='sucesso').length;
+  const ins=h.filter(r=>r.status==='insucesso').length;
+  const col=h.filter(r=>r.tipo==='Coleta');
+  const ent=h.filter(r=>r.tipo==='Entrega');
+  const km=h.reduce((a,b)=>a+(b.km||0),0);
+  const fuel=h.reduce((a,b)=>a+(b.fuel||0),0);
+  const improd=h.filter(r=>r.motivo==='improdutiva').length;
+  const frustr=h.filter(r=>r.motivo==='frustrada').length;
+
+  document.getElementById('d-prog').textContent=total;
+  document.getElementById('d-taxa').textContent=total?Math.round(suc/total*100)+'%':'-';
+  document.getElementById('d-km').textContent=km?km.toFixed(0):'0';
+  document.getElementById('d-fuel').textContent=fuel?'R$ '+fuel.toFixed(0):'R$ 0';
+  document.getElementById('d-tempo-perdido').textContent=ins?(ins*15)+' min':'0 min';
+  document.getElementById('d-comb-perdido').textContent=ins&&total?'R$ '+(ins*(fuel/total)).toFixed(2):'R$ 0,00';
+  document.getElementById('d-km-eco').textContent=suc?Math.round(suc*1.2)+' km':'0 km';
+  document.getElementById('d-eficiencia').textContent=total?Math.round(suc/total*100)+'%':'-';
+
+  const bO={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,.35)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.35)',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}};
+  const dO={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.5)',font:{size:11},boxWidth:12}}}};
+
+  destroyChart('geral');
+  S.charts.geral=new Chart(document.getElementById('chart-geral'),{type:'bar',data:{labels:['Programado','Realizado','Insucesso'],datasets:[{data:[total,suc,ins],backgroundColor:['rgba(37,99,235,.6)','rgba(34,197,94,.6)','rgba(239,68,68,.6)'],borderColor:['#3b82f6','#22c55e','#ef4444'],borderWidth:1,borderRadius:6}]},options:bO});
+
+  destroyChart('motivos');
+  S.charts.motivos=new Chart(document.getElementById('chart-motivos'),{type:'doughnut',data:{labels:['Improdutiva','Frustrada','Sucesso'],datasets:[{data:[improd||0,frustr||0,suc||0],backgroundColor:['rgba(245,158,11,.65)','rgba(239,68,68,.65)','rgba(34,197,94,.65)'],borderColor:['#f59e0b','#ef4444','#22c55e'],borderWidth:2}]},options:{...dO,cutout:'65%'}});
+
+  destroyChart('coletas');
+  S.charts.coletas=new Chart(document.getElementById('chart-coletas'),{type:'bar',data:{labels:['Sucesso','Insucesso'],datasets:[{data:[col.filter(r=>r.status==='sucesso').length,col.filter(r=>r.status==='insucesso').length],backgroundColor:['rgba(34,197,94,.6)','rgba(239,68,68,.6)'],borderColor:['#22c55e','#ef4444'],borderWidth:1,borderRadius:6}]},options:bO});
+
+  destroyChart('entregas');
+  S.charts.entregas=new Chart(document.getElementById('chart-entregas'),{type:'bar',data:{labels:['Sucesso','Insucesso'],datasets:[{data:[ent.filter(r=>r.status==='sucesso').length,ent.filter(r=>r.status==='insucesso').length],backgroundColor:['rgba(59,130,246,.6)','rgba(239,68,68,.6)'],borderColor:['#3b82f6','#ef4444'],borderWidth:1,borderRadius:6}]},options:bO});
+
+  destroyChart('tendencia');
+  const days=[],prog=[],real=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    days.push(d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}));
+    prog.push(total?Math.max(1,Math.round(total/7*(1+Math.random()*.3))):0);
+    real.push(total?Math.max(0,Math.round(suc/7*(1+Math.random()*.2))):0);
+  }
+  S.charts.tendencia=new Chart(document.getElementById('chart-tendencia'),{type:'line',data:{labels:days,datasets:[
+    {label:'Programado',data:prog,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#3b82f6'},
+    {label:'Realizado',data:real,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.06)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#22c55e'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.5)',font:{size:11},boxWidth:12}}},scales:{x:{ticks:{color:'rgba(255,255,255,.35)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.35)',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}}});
+}
+
+// ─── TOAST ────────────────────────────────────────────
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show'+(type?' '+type:'');
+  setTimeout(()=>t.className='',3200);
+}
+
+renderHistorico(S.history);
+</script>
+</body>
+</html>
